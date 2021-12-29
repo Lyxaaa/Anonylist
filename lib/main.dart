@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
       initialData: null,
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Anonylist',
+        title: 'Anonylist App',
         // theme: darkTheme,
         themeMode: ThemeMode.system,
         theme: lightTheme,
