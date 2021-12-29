@@ -98,10 +98,6 @@ class _FriendList extends State<Friends> with AutomaticKeepAliveClientMixin {
         } else {
           var info = snapshot.data!.data() as Map<String, dynamic>;
           name = info['name'];
-          //setSessionState(info['session_active']);
-          if (info['session_active']) {
-            return ActiveSession();
-          } else {
             return Scaffold(
               // backgroundColor: widget.add ? Colors.transparent : Theme.of(context).colorScheme.background,
               body: Container(
@@ -170,7 +166,6 @@ class _FriendList extends State<Friends> with AutomaticKeepAliveClientMixin {
             );
           }
         }
-      },
     );
   }
 

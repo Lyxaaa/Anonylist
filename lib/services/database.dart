@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:developer' as dev;
@@ -10,6 +11,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/date_time_patterns.dart';
+import 'package:quiver/collection.dart';
 
 class DatabaseService {
   final FirebaseStorage storage = FirebaseStorage.instanceFor(bucket: 'gs://anonylist-app.appspot.com');
@@ -37,6 +39,7 @@ class DatabaseService {
   String get uid => _uid!;
   String get name => _name!;
   String? get profilePicUrl => _profilePicUrl;
+
 
   String uidHash(String s1, String s2) =>
       (<String>[s1, s2]..sort()).join();
@@ -91,14 +94,12 @@ class DatabaseService {
   
   // Get reference to a collection in the database
   final CollectionReference userCollection = FirebaseFirestore.instance.collection('user');
-  final CollectionReference sessionCollection = FirebaseFirestore.instance.collection('session');
+  final CollectionReference groupsCollection = FirebaseFirestore.instance.collection('groups');
 
   Future createUser(String uid, String name) async {
     await userCollection.doc(uid).set({
       'name': name,
-      'session_active': false,
-      'session_uid': '',
-      'language_type': false,
+      'groups': [],
     });
   }
 
@@ -134,89 +135,48 @@ class DatabaseService {
     return userCollection.doc(uid).get();
   }
 
-  Stream<DocumentSnapshot> getSessionStream(String uid) {
-    return sessionCollection.doc(uidHash(this.uid, uid).toString()).snapshots();
+  Stream<DocumentSnapshot> getGroupStream(String groupName) {
+    return groupsCollection.doc(groupName).snapshots();
   }
 
-  void updateLanguageType(bool type) {
-    userCollection.doc(uid).update({
-      'language_type': type,
-    });
-    languageType = type;
+  Future<DocumentSnapshot> getGroupFuture(String groupName) {
+    return groupsCollection.doc(groupName).get();
   }
 
   void addFriend(String uid) {
     userCollection.doc(this.uid).collection('friends').doc(uid).set({
-      //'name': userCollection.doc(uid).snapshots().map((event) => event.data()),
-      'score': 0,
-      'last_session': Timestamp.now(),
+      'time_added': Timestamp.now(),
     });
     userCollection.doc(uid).collection('friends').doc(this.uid).set({
-      'score': 0,
-      'last_session': Timestamp.now(),
+      'time_added': Timestamp.now(),
     });
   }
 
-  void modifySessionHistory(String uid, Timestamp startTime, Timestamp endTime, int hours, int minutes, int breaks) {
-    sessionCollection.doc(uidHash(this.uid, uid).toString())
-        .collection('history')
-        .doc(startTime.toString())
-        .update({
-
+  void createGroupGlobal(String name) async {
+    await groupsCollection.doc(uid + name).set({
+      'name': name,
+      'owner': uid,
+    });
+    await userCollection.doc(uid).update({
+      'groups': FieldValue.arrayUnion([uid + name])
     });
   }
 
-
-  void startSession(String uid, String name, Timestamp endTime, int hours, int minutes, int breaks) {
-    //var otherUser = (await userCollection.doc(uid).snapshots().first).data() as Map<String?, dynamic>;
-    //bool? active = otherUser['session_active'];
-    //print("Active: " + active.toString() + ' : ' + uid);
-    //if (active != null && !active) {
-    Timestamp now = Timestamp.now();
-    setSessionState(this.uid, true, uid);
-    setSessionState(uid, true, this.uid);
-    startSessionGlobal(uid, name, endTime, hours, minutes, breaks);
-    //}
-    //return false;
-    //TODO need to make sure the other user isn't already in a session
-    //If user's session_active is false, display reg page
-    //If user's session_active is true:
-    //    if sessions other uid is true: display time remaining & stop button
-    //    if sessions other uid is false: display "waiting for friend to accept session"
-  }
-
-  void endSession(String uid) {
-    setSessionState(this.uid, false, uid);
-    setSessionState(uid, false, this.uid);
-    endSessionGlobal(uid, true);
-  }
-
-  void acceptSession(String uid) {
-    sessionCollection.doc(uidHash(this.uid, uid).toString()).update({
-      this.uid: true,
-      'start': Timestamp.now(),
+  void deleteGroupGlobal(String name, bool endEarly) {
+    groupsCollection.doc(name).update({
+      'active': false,
     });
   }
 
-  void startSessionGlobal(String uid, String name, Timestamp endTime, int hours, int minutes, int breaks) async {
-    await sessionCollection.doc(uidHash(this.uid, uid).toString()).set({
-      //'name': userCollection.doc(uid).snapshots().map((event) => event.data()),
-      this.uid.toString(): true,
-      uid.toString(): false,
-      'start': Timestamp.now(),
-      'end' : endTime,
-      'hours': hours,
-      'minutes': minutes,
-      'breaks': breaks,
-      uid+'name': name,
-      this.uid+'name': this.name
-    });
-  }
-
-  void endSessionGlobal(String uid, bool endEarly) {
-    sessionCollection.doc(uidHash(this.uid, uid).toString()).update({
-      'end': Timestamp.now()
-    });
+  void modifyList(String groupName, String uid, String itemName, String? link, bool? taken, String? takenBy) async {
+    Map<String, Object> data = new HashMap();
+    data['itemName'] = itemName;
+    if (link != null) data['link'] = link;
+    if (taken != null) data['taken'] = taken;
+    if (takenBy != null) data['takenBy'] = takenBy;
+    await groupsCollection.doc(groupName).collection(uid).doc(itemName).set(
+        data, SetOptions(merge: true)
+    );
   }
 
   Future setSessionState(String modifyUid, bool state, String otherUid) async {
