@@ -28,6 +28,13 @@
 
   <title>anonylist</title>
   <link rel="manifest" href="manifest.json">
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+
 </head>
 <body>
   <!-- This script installs service_worker.js to provide PWA functionality to
@@ -97,5 +104,26 @@
       loadMainDartJs();
     }
   </script>
+
+  <script type="module">
+  // Import the functions you need from the SDKs you need
+  // import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCpMf2PqT3jkFXRE7zpQtBRp82mxfTeTkU",
+    authDomain: "anonylist-app.firebaseapp.com",
+    projectId: "anonylist-app",
+    storageBucket: "anonylist-app.appspot.com",
+    messagingSenderId: "114074976666",
+    appId: "1:114074976666:web:30ff6e2141e43319c8fa23"
+  };
+
+  // Initialize Firebase
+  const app = firebase.initializeApp(firebaseConfig);
+  </script>
+
 </body>
 </html>
