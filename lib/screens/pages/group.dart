@@ -57,7 +57,9 @@ class _GroupState extends State<Group> {
                 ]))
           ],
         ),
-        body: StreamBuilder<QuerySnapshot?>(
+        body: Container(
+          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+          child: StreamBuilder<QuerySnapshot?>(
             // Find the lists in the group
             stream: database.getLists(widget.groupId),
             initialData: null,
@@ -101,6 +103,7 @@ class _GroupState extends State<Group> {
                     itemCount: lists.length);
               }
             }
+            ),
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

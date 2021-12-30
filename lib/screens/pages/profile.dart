@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:developer' as dev;
 
+import 'package:url_launcher/url_launcher.dart';
+
 class Profile extends StatefulWidget {
   const Profile({Key? key}) : super(key: key);
 
@@ -28,7 +30,7 @@ class _ProfileState extends State<Profile> {
       appBar: AppBar(
         title: Text('Edit Profile'),
         actions: <Widget>[
-          ElevatedButton(
+          IconButton(
               //Sign in Button
 
               onPressed: () async {
@@ -46,63 +48,80 @@ class _ProfileState extends State<Profile> {
                   }
                 }
               },
-              child: const Icon(Icons.save)
+              icon: const Icon(Icons.save)
               //style: ButtonStyle(),
               ),
         ],
       ),
-      body: Center(
-        child: Form(
-          key: _nameKey,
+      body: Container(
+          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
           child: Column(
-            children: <Widget>[
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Form(
+              key: _nameKey,
+              child: Column(
                 children: <Widget>[
-                  ProfilePic(onTap: () async {
-                    PickedFile? pic = await ImagePicker.platform
-                        .pickImage(source: ImageSource.gallery);
-                    if (pic != null) {
-                      database.uploadProfilePic(pic);
-                    }
-                  }),
-                  Flexible(
-                    child: Container(
-                      padding: const EdgeInsets.all(10.0),
-                      child: TextFormField(
-                        initialValue: database.name,
-                        decoration: const InputDecoration(
-                            suffixIcon: Icon(Icons.person_outline_rounded),
-                            border: OutlineInputBorder(),
-                            filled: true,
-                            // fillColor: Colors.white,
-                            labelText: 'Name'),
-                        validator: (input) =>
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      ProfilePic(onTap: () async {
+                        PickedFile? pic = await ImagePicker.platform
+                            .pickImage(source: ImageSource.gallery);
+                        if (pic != null) {
+                          database.uploadProfilePic(pic);
+                        }
+                      }),
+                      Flexible(
+                        child: Container(
+                          padding: const EdgeInsets.all(10.0),
+                          child: TextFormField(
+                            initialValue: database.name,
+                            decoration: const InputDecoration(
+                                suffixIcon: Icon(Icons.person_outline_rounded),
+                                border: OutlineInputBorder(),
+                                filled: true,
+                                // fillColor: Colors.white,
+                                labelText: 'Name'),
+                            validator: (input) =>
                             input!.isEmpty ? "Enter Name" : null,
-                        onChanged: (input) {
-                          setState(() {
-                            name = input;
-                          });
-                        },
+                            onChanged: (input) {
+                              setState(() {
+                                name = input;
+                              });
+                            },
+                          ),
+                        ),
                       ),
-                    ),
+                      IconButton(
+                        onPressed: () async {
+                          Navigator.of(context).pop();
+                          await _auth.signOut();
+                        },
+                        icon: const Icon(Icons.logout),
+                        alignment: Alignment.topRight,
+                      ),
+                    ],
                   ),
-                  IconButton(
-                    onPressed: () async {
-                      Navigator.of(context).pop();
-                      await _auth.signOut();
-                    },
-                    icon: const Icon(Icons.logout),
-                    alignment: Alignment.topRight,
+                  const SizedBox(
+                    height: 20.0,
                   ),
                 ],
               ),
-              const SizedBox(
-                height: 20.0,
-              ),
-            ],
-          ),
-        ),
+            ),
+            Spacer(),
+            ElevatedButton.icon(
+                onPressed: () async {
+                  String url = 'https://github.com/Lyxaaa/Anonylist';
+                  if (await canLaunch(url)) {
+                    await (launch(url));
+                  }
+                },
+              label: Text("View Source"),
+              icon: Icon(Icons.open_in_new),
+            ),
+          ],
+        )
+
       ),
     );
   }

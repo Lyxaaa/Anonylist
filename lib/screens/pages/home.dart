@@ -57,6 +57,7 @@ class _HomePage extends State<Home> with AutomaticKeepAliveClientMixin {
           var userInfo = snapshot.data!.data() as Map<String, dynamic>;
           return Scaffold(
             body: Container(
+              padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
               alignment: Alignment.center,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,

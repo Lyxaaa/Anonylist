@@ -31,7 +31,7 @@ class _ListItemState extends State<ListItem> {
     _checked = List.filled(widget.list.length, false);
     return Container(
       child: ExpansionPanelList(
-        animationDuration: Duration(seconds: 2),
+        animationDuration: Duration(milliseconds: 500),
         children: [
           ExpansionPanel(
             headerBuilder: (context, isExpanded) {
