@@ -46,14 +46,13 @@ class _MainScaffoldPageState extends State<MainScaffoldPage>
   final AuthService _auth = AuthService();
   final DatabaseService database = DatabaseService();
 
-  int _selectedIndex = 0;
+  int _selectedIndex = 1;
 
   //Everything in the BottomNavigationBar should go here
   //If we have 3 items in the navbar, this list should have 3 widget elements
   static final List<Widget> _pages = <Widget>[
     Friends(),
     Home(),
-    Stats(),
   ];
 
   // bool _sessionActive = false;
@@ -66,23 +65,22 @@ class _MainScaffoldPageState extends State<MainScaffoldPage>
   //   }
   // }
 
-  PageController _controller = PageController(
-    initialPage: 0,
-  );
 
   void _onItemTapped(int index) {
     //setState() should be called EVERY TIME something that could impact the UI
     //is changed
     setState(() {
-      _controller.jumpToPage(index);
       _selectedIndex = index;
     });
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+  void pushNavigation(BuildContext context, Widget dialog, bool fullscreen) {
+    Navigator.push(context,
+        MaterialPageRoute(
+            builder: (BuildContext context) => dialog,
+            fullscreenDialog: fullscreen,
+        )
+    );
   }
 
   @override
@@ -105,40 +103,25 @@ class _MainScaffoldPageState extends State<MainScaffoldPage>
             //setSessionState(userInfo['session_active']);
             database.setName(userInfo['name']);
             return Scaffold(
-                backgroundColor: Theme.of(context).canvasColor,
                 appBar: AppBar(
                   leading: IconButton(
                       onPressed: () {
-                        showDialog(
-                            context: context,
-                            builder: (_) =>
-                                OverlayPopup(contents: Profile()
-                                )
-                        );
+                        pushNavigation(context, Profile(), true);
+                        // showDialog(
+                        //     context: context,
+                        //     builder: (_) =>
+                        //         OverlayPopup(contents: Profile()
+                        //         )
+                        // );
                       },
                       icon: Icon(Icons.account_circle)),
 
                   centerTitle: true,
                   title: Text(
-                    /*DatabaseService().userInfo.get().toString() + */
-                      (!_controller.hasClients
-                          ? _pages[0]
-                          : _pages[(_controller.page ??
-                          _controller.initialPage)
-                          .round()])
-                          .toString(),
-                      style: const TextStyle(
-                        fontSize: 30.0,
-                        fontWeight: FontWeight.bold,
-                      )),
-                  //Since this was called by _MyHomePageState, which was created
-                  // in MyHomePage, we can access all of the states variables through
-                  // widget.#{}
-                  backgroundColor: Theme.of(context).colorScheme.primary,
+                      _pages.elementAt(_selectedIndex).toString(),
+                  ),
                   elevation: 0.0,
-                  //Logout, Profile or Settings button
 
-                  //TODO Implement functionality, this should either logout or take the user somewhere
                   actions: <Widget>[
                     Align(
                         alignment: Alignment.centerRight,
@@ -151,7 +134,7 @@ class _MainScaffoldPageState extends State<MainScaffoldPage>
                                         widthFactor: 0.9,
                                         heightFactor: 0.9,
                                         contents: Friends(
-                                          add: true,
+                                          addFriend: true,
                                         ),
                                       )
                               ).then((value) => {FocusScope.of(context).unfocus()});
@@ -163,32 +146,20 @@ class _MainScaffoldPageState extends State<MainScaffoldPage>
                   ],
                 ),
                 body: Center(
-                    child: PageView(
-                  controller: _controller,
-                  children: _pages,
-                  onPageChanged: _onItemTapped,
-                )
+                    child: _pages.elementAt(_selectedIndex)
                     // child: _pages.elementAt(_selectedIndex),
                     ),
                 bottomNavigationBar: Container(
-                    decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(30),
-                            topLeft: Radius.circular(30))),
                     child: Material(
-                      color: Theme.of(context).colorScheme.primary,
                       elevation: 0.0,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0)),
                       child: BottomNavigationBar(
                         type: BottomNavigationBarType.fixed,
                         showSelectedLabels: false,
                         showUnselectedLabels: false,
                         iconSize: 24,
                         elevation: 0,
-                        backgroundColor: Colors.transparent,
-                        fixedColor: Theme.of(context).colorScheme.onBackground,
+                        // backgroundColor: Colors.transparent,
+                        // fixedColor: Theme.of(context).colorScheme.onBackground,
                         items: const <BottomNavigationBarItem>[
                           BottomNavigationBarItem(
                             icon: Icon(Icons.people,
@@ -199,11 +170,6 @@ class _MainScaffoldPageState extends State<MainScaffoldPage>
                             icon: Icon(Icons.alarm_on,
                                 semanticLabel: "Start Session"),
                             label: 'Sessions',
-                          ),
-                          BottomNavigationBarItem(
-                            icon: Icon(Icons.bar_chart,
-                                semanticLabel: "Statistics Page"),
-                            label: 'Stats',
                           ),
                         ],
                         currentIndex: _selectedIndex,

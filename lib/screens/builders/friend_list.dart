@@ -8,9 +8,19 @@ import 'dart:developer' as dev;
 
 class FriendList extends StatefulWidget {
   final bool showAll;
-  final bool add;
   final String searchQuery;
-  const FriendList({Key? key, this.showAll=false, this.searchQuery='', this.add=false})
+  final bool addFriend;
+  final bool addToGroup;
+  final String groupId;
+
+  const FriendList({
+    Key? key,
+    this.showAll=false,
+    this.searchQuery='',
+    this.addFriend = false,
+    this.addToGroup = false,
+    this.groupId = '',
+  })
       : super(key: key);
 
   @override
@@ -25,7 +35,7 @@ class _FriendListState extends State<FriendList> {
     bool show = true;
       //Displays all users that the current user is friends with
       return StreamBuilder<QuerySnapshot?>(
-          stream: widget.add ? database.userCollectionStream : database.friendsCollectionStream,
+          stream: widget.addFriend ? database.userCollectionStream : database.friendsCollectionStream,
           //TODO Change to friend list database collection
           initialData: null,
           builder: (context, userCollectionSnapshot) {
@@ -37,7 +47,7 @@ class _FriendListState extends State<FriendList> {
                     var uid = userCollectionSnapshot.data!.docs[index].id;
                     dev.log(uid, name: "User ID Check");
                     var friendInfo = userCollectionSnapshot.data!.docs[index].data() as Map<String, dynamic>;
-                    if (widget.add) {
+                    if (widget.addFriend) {
                       show = false;
                       //TODO uncomment this later, only keeping it for expo
                       //TODO remove people the user is already friends with
@@ -52,6 +62,9 @@ class _FriendListState extends State<FriendList> {
                         uid: uid,
                         name: friendInfo['name'],
                         show: show,
+                        addToGroup: widget.addToGroup,
+                        addFriend: widget.addFriend,
+                        groupId: widget.groupId,
                       );
                     } else {
                       return FutureBuilder<DocumentSnapshot?>(
@@ -61,8 +74,7 @@ class _FriendListState extends State<FriendList> {
                             if (userInfoSnapshot.hasError) {
                               return Load();
                             } else if (userInfoSnapshot.hasData || userInfoSnapshot.data != null) {
-                              var userInfo = userInfoSnapshot.data!.data() as Map<String,
-                                  dynamic>; //TODO Find out how to reference a doc cell
+                              var userInfo = userInfoSnapshot.data!.data() as Map<String, dynamic>;
                               show = true;
                               if (widget.searchQuery.length >= 2
                                   && !userInfo['name'].toString().toLowerCase()
@@ -72,10 +84,11 @@ class _FriendListState extends State<FriendList> {
                               dev.log(userInfoSnapshot.data!.data().toString() + ' : ' + show.toString(), name: "filter friends");
                               return FriendItem(
                                 uid: uid,
-                                lastSession: friendInfo['last_session'],
-                                score: friendInfo['score'],
                                 name: userInfo['name'],
                                 show: show,
+                                addToGroup: widget.addToGroup,
+                                addFriend: widget.addFriend,
+                                groupId: widget.groupId,
                               );
                             } else {
                               return Load();

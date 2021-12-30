@@ -4,6 +4,7 @@ import 'package:anonylist/templates/profile_pic.dart';
 import 'package:anonylist/templates/container_style.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'dart:developer' as dev;
 
 class Profile extends StatefulWidget {
   const Profile({Key? key}) : super(key: key);
@@ -16,8 +17,97 @@ class _ProfileState extends State<Profile> {
   final AuthService _auth = AuthService();
   DatabaseService database = DatabaseService();
 
+  final _nameKey = GlobalKey<FormState>();
+  bool load = false;
+  String name = '';
+  String err = '';
+
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Edit Profile'),
+        actions: <Widget>[
+          ElevatedButton(
+              //Sign in Button
+
+              onPressed: () async {
+                if (_nameKey.currentState!.validate() && name != '') {
+                  setState(() {
+                    load = true;
+                  });
+                  dev.log(name, name: "name");
+                  dynamic result = await database.editUser(name);
+                  if (result == null) {
+                    setState(() {
+                      load = false;
+                      err = "Invalid Credentials";
+                    });
+                  }
+                }
+              },
+              child: const Icon(Icons.save)
+              //style: ButtonStyle(),
+              ),
+        ],
+      ),
+      body: Center(
+        child: Form(
+          key: _nameKey,
+          child: Column(
+            children: <Widget>[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  ProfilePic(onTap: () async {
+                    PickedFile? pic = await ImagePicker.platform
+                        .pickImage(source: ImageSource.gallery);
+                    if (pic != null) {
+                      database.uploadProfilePic(pic);
+                    }
+                  }),
+                  Flexible(
+                    child: Container(
+                      padding: const EdgeInsets.all(10.0),
+                      child: TextFormField(
+                        initialValue: database.name,
+                        decoration: const InputDecoration(
+                            suffixIcon: Icon(Icons.person_outline_rounded),
+                            border: OutlineInputBorder(),
+                            filled: true,
+                            // fillColor: Colors.white,
+                            labelText: 'Name'),
+                        validator: (input) =>
+                            input!.isEmpty ? "Enter Name" : null,
+                        onChanged: (input) {
+                          setState(() {
+                            name = input;
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                      await _auth.signOut();
+                    },
+                    icon: const Icon(Icons.logout),
+                    alignment: Alignment.topRight,
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 20.0,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget bd(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20.0),
       child: Column(
@@ -56,126 +146,10 @@ class _ProfileState extends State<Profile> {
                     ),
                   ],
                 )
-
               ],
             ),
             const SizedBox(
               height: 30,
-            ),
-            const Text(
-              "Sessions:",
-              style: TextStyle(
-                fontSize: 20.0,
-              ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            CardContainer(
-              margin: 5,
-              child: Row(
-                children: [
-                  const Expanded(
-                    flex: 9,
-                    child: SizedBox(height: 90),
-                  ),
-                  Expanded(
-                    flex: 5,
-                    child: RichText(
-                      text: TextSpan(
-                          text: '2',
-                          style: Theme.of(context).textTheme.headline3,
-                          children: <TextSpan>[
-                            TextSpan(
-                                text: 'sessions',
-                                style: Theme.of(context).textTheme.bodyText2)
-                          ]),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            const SizedBox(
-              height: 30,
-            ),
-            CardContainer(
-              margin: 5,
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 8,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Session Average\n',
-                          style: Theme.of(context).textTheme.headline6,
-                        ),
-                        Text('Average Number of minutes per session',
-                            style: Theme.of(context).textTheme.overline
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Expanded(
-                    flex: 1,
-                    child: SizedBox(height: 90),
-                  ),
-                  Expanded(
-                    flex: 5,
-                    child: RichText(
-                      text: TextSpan(
-                          text: '21',
-                          style: Theme.of(context).textTheme.headline3,
-                          children: <TextSpan>[
-                            TextSpan(
-                                text: 'minutes',
-                                style: Theme.of(context).textTheme.bodyText2)
-                          ]),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            const SizedBox(
-              height: 30,
-            ),
-            CardContainer(
-              margin: 5,
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 8,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Level of Focus\n',
-                          style: Theme.of(context).textTheme.headline6,
-                        ),
-                        Text('Amount of time you stay focused during a session',
-                            style: Theme.of(context).textTheme.overline
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Expanded(
-                    flex: 1,
-                    child: SizedBox(height: 90),
-                  ),
-                  Expanded(
-                    flex: 5,
-                    child: RichText(
-                      text: TextSpan(
-                          text: '77',
-                          style: Theme.of(context).textTheme.headline3,
-                          children: <TextSpan>[
-                            TextSpan(
-                                text: '%',
-                                style: Theme.of(context).textTheme.bodyText2)
-                          ]),
-                    ),
-                  )
-                ],
-              ),
             ),
           ]),
     );

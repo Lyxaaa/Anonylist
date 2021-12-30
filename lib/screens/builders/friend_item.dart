@@ -12,17 +12,19 @@ import 'overlay_popup.dart';
 
 class FriendItem extends StatefulWidget {
   final String uid;
-  final Timestamp? lastSession;
-  final int score;
   final String name;
   final bool show;
+  final bool addFriend;
+  final bool addToGroup;
+  final String groupId;
 
   const FriendItem(
       {Key? key,
       required this.uid,
-      this.lastSession,
-      this.score = -1,
       required this.name,
+        this.addFriend = false,
+        this.addToGroup = false,
+        this.groupId = '',
       this.show=true})
       : super(key: key);
 
@@ -41,7 +43,7 @@ class _FriendItemState extends State<FriendItem> {
           if (!widget.show) {
             return const SizedBox();
           } else {
-            if (widget.score == -1) {
+            if (widget.addFriend) {
               return Container(
                 padding: const EdgeInsets.symmetric(
                     horizontal: 20, vertical: 5),
@@ -61,50 +63,44 @@ class _FriendItemState extends State<FriendItem> {
                   ],
                 ),
               );
+            } else if (widget.addToGroup) {
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 20, vertical: 5),
+                child: Row(
+                  children: <Widget>[
+                    UserPic(url: snapshot.data.toString()),
+                    const SizedBox(
+                      width: 20,
+                    ),
+                    Text(widget.name),
+                    const Spacer(),
+                    ElevatedButton(
+                        onPressed: () {
+                          DatabaseService().addUserToGroup(widget.groupId, widget.uid);
+                        },
+                        child: const Text("Add to this group"))
+                  ],
+                ),
+              );
             } else {
-              return InkWell(
-                onTap: () {
-                  showDialog(
-                      context: context,
-                      builder: (_) =>
-                          OverlayPopup(
-                              widthFactor: 0.9,
-                              heightFactor: 0.9,contents: StartSession(
-                            name: widget.name, uid: widget.uid,)));
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 20, vertical: 5),
-                  child: Row(
-                    children: <Widget>[
-                      UserPic(url: snapshot.data.toString()),
-                      const SizedBox(
-                        width: 20,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.name,
-                            style: TextStyle(fontSize: 20),
-                          ),
-                          Text(
-                            "Last Session: " +
-                                DateFormat('MMMd').format(
-                                    widget.lastSession!.toDate()),
-                            style: TextStyle(
-                              fontSize: 10,
-                            ),
-                          )
-                        ],
-                      ),
-                      const Spacer(),
-                      Text(
-                        widget.score.toString(),
-                        style: TextStyle(fontSize: 30),
-                      ),
-                    ],
-                  ),
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 20, vertical: 5),
+                child: Row(
+                  children: <Widget>[
+                    UserPic(url: snapshot.data.toString()),
+                    const SizedBox(
+                      width: 20,
+                    ),
+                    Text(widget.name),
+                    const Spacer(),
+                    ElevatedButton(
+                        onPressed: () {
+                          //TODO Remove Friend
+                        },
+                        child: const Text("Remove friend"))
+                  ],
                 ),
               );
             }

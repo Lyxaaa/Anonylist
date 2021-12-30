@@ -103,6 +103,17 @@ class DatabaseService {
     });
   }
 
+  Future editUser(String? name) async {
+    Map<String, Object> data = new HashMap();
+    if (name != null) {
+      data['name'] = name;
+      _name = name;
+    }
+    await userCollection.doc(uid).set(
+        data, SetOptions(merge: true)
+    );
+  }
+
   //get userPreferences Stream
   Stream<DocumentSnapshot> get userDetailsStream {
     return userCollection.doc(uid).snapshots();
@@ -152,11 +163,11 @@ class DatabaseService {
     });
   }
 
-  void createGroupGlobal(String name) async {
+  Future createGroupGlobal(String name) async {
     await groupsCollection.doc(uid + name).set({
       'name': name,
       'owner': uid,
-    });
+    }, SetOptions(merge: true));
     await userCollection.doc(uid).update({
       'groups': FieldValue.arrayUnion([uid + name])
     });
@@ -168,15 +179,39 @@ class DatabaseService {
     });
   }
 
-  void modifyList(String groupName, String uid, String itemName, String? link, bool? taken, String? takenBy) async {
+  void addUserToGroup(String groupName, String uid) async {
+    await groupsCollection.doc(groupName).collection('lists').doc(uid).set({
+      'time_added': Timestamp.now(),
+    });
+    await userCollection.doc(uid).update({
+      'groups': FieldValue.arrayUnion([groupName])
+    });
+    var res = await groupsCollection.doc(groupName).collection('lists').doc(uid).collection('items').get();
+    dev.log(res.toString(), name: 'Add to Group');
+  }
+
+  void modifyList(String groupName, String uid, String? itemName, String origin, String? link, bool? taken, String? takenBy) async {
     Map<String, Object> data = new HashMap();
-    data['itemName'] = itemName;
+    data['origin'] = origin;
+    if (itemName != null) data['name'] = itemName;
     if (link != null) data['link'] = link;
     if (taken != null) data['taken'] = taken;
-    if (takenBy != null) data['takenBy'] = takenBy;
-    await groupsCollection.doc(groupName).collection(uid).doc(itemName).set(
+    if (takenBy != null) data['taken_by'] = takenBy;
+    await groupsCollection.doc(groupName).collection('lists').doc(uid).collection('items').doc(origin).set(
         data, SetOptions(merge: true)
     );
+  }
+
+  void deleteItem(String groupName, String uid, String origin) async {
+    await groupsCollection.doc(groupName).collection('lists').doc(uid).collection('items').doc(origin).delete();
+  }
+
+  Stream<QuerySnapshot> getLists(String groupName) {
+    return groupsCollection.doc(groupName).collection('lists').snapshots();
+  }
+
+  Stream<QuerySnapshot> getItems(String groupName, String uid) {
+    return groupsCollection.doc(groupName).collection('lists').doc(uid).collection('items').snapshots();
   }
 
   Future setSessionState(String modifyUid, bool state, String otherUid) async {

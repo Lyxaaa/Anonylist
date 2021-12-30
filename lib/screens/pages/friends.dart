@@ -10,8 +10,16 @@ import 'package:provider/provider.dart';
 
 //Display auth info, allowing users to login, register or await auto login
 class Friends extends StatefulWidget {
-  final bool add;
-  const Friends({Key? key, this.add=false}) : super(key: key);
+  final bool addFriend;
+  final bool addToGroup;
+  final String groupId;
+
+  const Friends({
+    Key? key,
+    this.addFriend=false,
+    this.addToGroup = false,
+    this.groupId = '',
+  }) : super(key: key);
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
@@ -48,7 +56,7 @@ class _FriendList extends State<Friends> with AutomaticKeepAliveClientMixin {
       children: <Widget>[
         Expanded(child:
         TextFormField(
-          autofocus: widget.add ? true : false,
+          autofocus: widget.addFriend ? true : false,
           controller: _textFieldController,
           decoration: InputDecoration(
             prefixIcon: Icon(Icons.search),
@@ -102,7 +110,7 @@ class _FriendList extends State<Friends> with AutomaticKeepAliveClientMixin {
               // backgroundColor: widget.add ? Colors.transparent : Theme.of(context).colorScheme.background,
               body: Container(
                 // color: widget.add ? Colors.transparent : Theme.of(context).colorScheme.onBackground,
-                padding: widget.add ? null : const EdgeInsets.symmetric(
+                padding: widget.addFriend ? null : const EdgeInsets.symmetric(
                     horizontal: 30,
                     vertical: 20),
                 // Center is a layout widget. It takes a single child and positions it
@@ -115,14 +123,14 @@ class _FriendList extends State<Friends> with AutomaticKeepAliveClientMixin {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                       //// QRCODE Scanner
-                      Visibility(visible:widget.add,
+                      Visibility(visible:widget.addFriend,
                           child: IconButton(
                               // TODO: Break this function out.
                               onPressed: () => {FriendScanFull(context)},
                               icon: Icon(Icons.camera)
                           )),
                       ///// QR Generator
-                      Visibility(visible:widget.add,
+                      Visibility(visible:widget.addFriend,
                           child: IconButton(
                               onPressed: () {
                                 AppUser? user = Provider.of<AppUser?>(context, listen: false);
@@ -137,7 +145,7 @@ class _FriendList extends State<Friends> with AutomaticKeepAliveClientMixin {
                                 }},
                               icon: Icon(Icons.qr_code))),
                     ],),
-                    filterFriends(widget.add ? 'Add Friend' : 'Filter Friends'),
+                    filterFriends(widget.addFriend ? 'Add Friend' : 'Filter Friends'),
                     SizedBox(height: 20.0,),
                     Expanded(
                       flex: 5,
@@ -151,7 +159,7 @@ class _FriendList extends State<Friends> with AutomaticKeepAliveClientMixin {
                             color: Theme.of(context).backgroundColor,
                             // color: Colors.transparent,
                         ),
-                        child: FriendList(add: widget.add,
+                        child: FriendList(addFriend: widget.addFriend, addToGroup: widget.addToGroup, groupId: widget.groupId,
                           searchQuery: _textFieldController.text,),
                       ),
                     ),

@@ -24,6 +24,7 @@ class _ProfilePicState extends State<ProfilePic> {
             : CircleAvatar(
           radius: 50.0,
           backgroundImage: NetworkImage(database.currentProfilePicUrl!),
+          child: Icon(Icons.edit),
         )
     );
   }

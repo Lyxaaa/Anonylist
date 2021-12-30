@@ -31,8 +31,8 @@ class MyApp extends StatelessWidget {
         title: 'Anonylist App',
         // theme: darkTheme,
         themeMode: ThemeMode.system,
-        theme: lightTheme,
-        darkTheme: darkTheme,
+        theme: ThemeData.light(),
+        darkTheme: ThemeData.dark(),
         // theme: ThemeData(
         //   scaffoldBackgroundColor: MaterialColor.,
         //   canvasColor: AppTheme.notWhite,
