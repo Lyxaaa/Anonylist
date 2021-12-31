@@ -47,8 +47,7 @@ class _GroupItemState extends State<GroupItem> {
                 },
                 child: Card(
                   clipBehavior: Clip.antiAlias,
-                  child: Column(
-                    children: [
+                  child:
                       ListTile(
                         leading: UserPic(url: snapshot.data.toString()),
                         trailing: const Icon(Icons.chevron_right),
@@ -56,8 +55,6 @@ class _GroupItemState extends State<GroupItem> {
                         subtitle: Text(widget.description,
                           style: TextStyle(color: Theme.of(context).primaryColorLight),),
                       )
-                    ],
-                  ),
 
                 ),
               );

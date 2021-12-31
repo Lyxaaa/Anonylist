@@ -44,6 +44,22 @@ class _FriendItemState extends State<FriendItem> {
             return const SizedBox();
           } else {
             if (widget.addFriend) {
+              return Card(
+                  clipBehavior: Clip.antiAlias,
+                  child:
+                  ListTile(
+                    leading: UserPic(url: snapshot.data.toString()),
+                    trailing: ElevatedButton.icon(
+                        onPressed: () {
+                          DatabaseService().addFriend(widget.uid);
+                        },
+                        label: const Text("add friend"),
+                      icon: Icon(Icons.person_add),
+                    ),
+                    title: Text(widget.name),
+                  )
+
+              );
               return Container(
                 padding: const EdgeInsets.symmetric(
                     horizontal: 20, vertical: 5),
@@ -64,6 +80,22 @@ class _FriendItemState extends State<FriendItem> {
                 ),
               );
             } else if (widget.addToGroup) {
+              return Card(
+                  clipBehavior: Clip.antiAlias,
+                  child:
+                  ListTile(
+                    leading: UserPic(url: snapshot.data.toString()),
+                    trailing: ElevatedButton.icon(
+                        onPressed: () {
+                          DatabaseService().addUserToGroup(widget.groupId, widget.uid);
+                        },
+                        label: const Text("Add to group"),
+                      icon: Icon(Icons.group_add),
+                    ),
+                    title: Text(widget.name),
+                  )
+
+              );
               return Container(
                 padding: const EdgeInsets.symmetric(
                     horizontal: 20, vertical: 5),
@@ -84,6 +116,22 @@ class _FriendItemState extends State<FriendItem> {
                 ),
               );
             } else {
+              return Card(
+                  clipBehavior: Clip.antiAlias,
+                  child:
+                  ListTile(
+                    leading: UserPic(url: snapshot.data.toString()),
+                    trailing: ElevatedButton.icon(
+                        onPressed: () {
+                          DatabaseService().addUserToGroup(widget.groupId, widget.uid);
+                        },
+                        label: const Text("Remove friend"),
+                      icon: Icon(Icons.delete),
+                    ),
+                    title: Text(widget.name),
+                  )
+
+              );
               return Container(
                 padding: const EdgeInsets.symmetric(
                     horizontal: 20, vertical: 5),

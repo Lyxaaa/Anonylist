@@ -16,7 +16,7 @@ class Friends extends StatefulWidget {
 
   const Friends({
     Key? key,
-    this.addFriend=false,
+    this.addFriend = false,
     this.addToGroup = false,
     this.groupId = '',
   }) : super(key: key);
@@ -54,38 +54,38 @@ class _FriendList extends State<Friends> with AutomaticKeepAliveClientMixin {
   Row filterFriends(String text) {
     return Row(
       children: <Widget>[
-        Expanded(child:
-        TextFormField(
-          autofocus: widget.addFriend ? true : false,
-          controller: _textFieldController,
-          decoration: InputDecoration(
-            prefixIcon: Icon(Icons.search),
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15)
+        Expanded(
+          child: TextFormField(
+            autofocus: widget.addFriend ? true : false,
+            controller: _textFieldController,
+            decoration: InputDecoration(
+              prefixIcon: Icon(Icons.search),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+              filled: true,
+              // fillColor: Colors.white,
+              labelText: text,
+              suffixIcon: IconButton(
+                icon: Icon(Icons.clear),
+                onPressed: () {
+                  setState(() {
+                    FocusScope.of(context).unfocus();
+                    _textFieldController.clear();
+                  });
+                },
+              ),
             ),
-            filled: true,
-            // fillColor: Colors.white,
-            labelText: text,
-            suffixIcon: IconButton(
-              icon: Icon(Icons.clear),
-              onPressed: () { setState(() {
-                FocusScope.of(context).unfocus();
-                _textFieldController.clear();
-              });},
-            ),
+            onChanged: (input) {
+              setState(() {
+                search = input;
+              });
+            },
           ),
-          onChanged: (input) {
-            setState(() {
-              search  = input;
-            });
-          },
-        ),
           flex: 5,
         )
       ],
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -97,70 +97,42 @@ class _FriendList extends State<Friends> with AutomaticKeepAliveClientMixin {
     // _textFieldController.selection = TextSelection.fromPosition(TextPosition(
     //     offset: _textFieldController.text.length));
     return StreamBuilder<DocumentSnapshot?>(
-      //TODO set loading screen here to prevent error screen from momentarily showing
-      stream: database.userDetailsStream,
-      initialData: null,
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return Load();
-        } else {
-          var info = snapshot.data!.data() as Map<String, dynamic>;
-          name = info['name'];
+        //TODO set loading screen here to prevent error screen from momentarily showing
+        stream: database.userDetailsStream,
+        initialData: null,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Load();
+          } else {
+            var info = snapshot.data!.data() as Map<String, dynamic>;
+            name = info['name'];
             return Scaffold(
               // backgroundColor: widget.add ? Colors.transparent : Theme.of(context).colorScheme.background,
               body: Container(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 20.0, horizontal: 20.0),
                 // color: widget.add ? Colors.transparent : Theme.of(context).colorScheme.onBackground,
-                padding: widget.addFriend ? null : const EdgeInsets.symmetric(
-                    horizontal: 30,
-                    vertical: 20),
+                // padding: (widget.addFriend || widget.addToGroup) ? null : const EdgeInsets.symmetric(
+                //     horizontal: 30,
+                //     vertical: 20),
                 // Center is a layout widget. It takes a single child and positions it
                 // in the middle of the parent.
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                      //// QRCODE Scanner
-                      Visibility(visible:widget.addFriend,
-                          child: IconButton(
-                              // TODO: Break this function out.
-                              onPressed: () => {FriendScanFull(context)},
-                              icon: Icon(Icons.camera)
-                          )),
-                      ///// QR Generator
-                      Visibility(visible:widget.addFriend,
-                          child: IconButton(
-                              onPressed: () {
-                                AppUser? user = Provider.of<AppUser?>(context, listen: false);
-                                if ( user != null) {
-                                  showDialog(
-                                      context: context,
-                                      builder: (_) => SimpleDialog(
-                                        // title: Text(user.name ?? 'Nameless One'),
-                                        children:[FriendCode(
-                                            user)],
-                                      ));
-                                }},
-                              icon: Icon(Icons.qr_code))),
-                    ],),
-                    filterFriends(widget.addFriend ? 'Add Friend' : 'Filter Friends'),
-                    SizedBox(height: 20.0,),
+                    filterFriends(
+                        widget.addFriend ? 'Add Friend' : 'Filter Friends'),
+                    SizedBox(
+                      height: 20.0,
+                    ),
                     Expanded(
                       flex: 5,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 7.5,
-                            vertical: 20),
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-                            color: Theme.of(context).backgroundColor,
-                            // color: Colors.transparent,
-                        ),
-                        child: FriendList(addFriend: widget.addFriend, addToGroup: widget.addToGroup, groupId: widget.groupId,
-                          searchQuery: _textFieldController.text,),
+                      child: FriendList(
+                        addFriend: widget.addFriend,
+                        addToGroup: widget.addToGroup,
+                        groupId: widget.groupId,
+                        searchQuery: _textFieldController.text,
                       ),
                     ),
                   ],
@@ -173,8 +145,7 @@ class _FriendList extends State<Friends> with AutomaticKeepAliveClientMixin {
             ),*/
             );
           }
-        }
-    );
+        });
   }
 
   @override

@@ -30,8 +30,8 @@ class _OverlayPopupState extends State<OverlayPopup> {
   Widget build(BuildContext context) {
     return Dialog(
         // backgroundColor: widget.backgroundColor ?? Colors.transparent,
-        backgroundColor: Colors.transparent,
-        insetPadding: EdgeInsets.fromLTRB(0, 10, 0, 20),
+        // backgroundColor: Colors.transparent,
+        // insetPadding: EdgeInsets.fromLTRB(0, 10, 0, 20),
 
         child: FractionallySizedBox(
             widthFactor: widget.fill ? null : (widget.widthFactor ?? 0.8),
